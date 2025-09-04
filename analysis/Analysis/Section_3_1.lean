@@ -263,7 +263,17 @@ theorem SetTheory.Set.mem_pair (x a b:Object) : x ∈ ({a,b}:Set) ↔ (x = a ∨
 
 @[simp]
 theorem SetTheory.Set.mem_triple (x a b c:Object) : x ∈ ({a,b,c}:Set) ↔ (x = a ∨ x = b ∨ x = c) := by
-  simp [Insert.insert, mem_union, mem_singleton]
+  constructor
+  . intro (hx: x ∈ ({a, b, c}:Set))
+    have h₁ : x = a ∨ x ∈ ({b, c}:Set) := (Set.mem_insert x a ({b, c}:Set)).mp hx
+    have h₂ : x = a ∨ x = b ∨ x = c    := by rw [Set.mem_pair x b c] at h₁; exact h₁
+    exact h₂
+  . intro hx
+    have h₁ : x = a ∨ x ∈ {b, c} → x ∈ {a, b, c} := (Set.mem_insert x a ({b, c}:Set)).mpr
+    rcases hx with (hxa : x = a) | (hxbc : x = b ∨ x = c)
+    . exact h₁ (Or.inl hxa)
+    . have h₂ : x ∈ {b, c} := (Set.mem_pair x b c).mpr hxbc
+      exact h₁ (Or.inr h₂)
 
 /-- Remark 3.1.9 -/
 theorem SetTheory.Set.singleton_uniq (a:Object) : ∃! (X:Set), ∀ x, x ∈ X ↔ x = a := by sorry
