@@ -313,7 +313,18 @@ theorem SetTheory.Set.pair_uniq (a b:Object) : ∃! (X:Set), ∀ x, x ∈ X ↔ 
   exact h₃
 
 /-- Remark 3.1.9 -/
-theorem SetTheory.Set.pair_comm (a b:Object) : ({a,b}:Set) = {b,a} := by sorry
+theorem SetTheory.Set.pair_comm (a b:Object) : ({a,b}:Set) = {b,a} := by
+  apply SetTheory.extensionality
+  intro x
+  constructor
+  . intro (hxab : x ∈ ({a, b}:Set))
+    have h₁ : x = a ∨ x = b    := (mem_pair x a b).mp hxab
+    have h₂ : x ∈ ({b, a}:Set) := (mem_pair x b a).mpr h₁.symm
+    exact h₂
+  . intro (hxba : x ∈ ({b, a}:Set))
+    have h₁ : x = b ∨ x = a    := (mem_pair x b a).mp hxba
+    have h₂ : x ∈ ({a, b}:Set) := (mem_pair x a b).mpr h₁.symm
+    exact h₂
 
 /-- Remark 3.1.9 -/
 @[simp]
