@@ -276,7 +276,26 @@ theorem SetTheory.Set.mem_triple (x a b c:Object) : x ∈ ({a,b,c}:Set) ↔ (x =
       exact h₁ (Or.inr h₂)
 
 /-- Remark 3.1.9 -/
-theorem SetTheory.Set.singleton_uniq (a:Object) : ∃! (X:Set), ∀ x, x ∈ X ↔ x = a := by sorry
+theorem SetTheory.Set.singleton_uniq (a:Object) : ∃! (X:Set), ∀ x, x ∈ X ↔ x = a := by
+  use ({a}:Set)
+  simp
+  -- ⊢ ∀ X, (∀ x, x ∈ X ↔ x = a) → X = {a}
+  intro X (h₀ : ∀ x, x ∈ X ↔ x = a)
+  -- ⊢ X = {a}
+  apply SetTheory.extensionality
+  -- ⊢ ∀ x, x ∈ X ↔ x ∈ {a}
+  intro x
+  constructor
+  . -- →
+    intro (h₁ : x ∈ X)
+    have h₂ : x = a := (h₀ x).mp h₁
+    have h₃ : x ∈ ({a}:Set) := (mem_singleton x a).mpr h₂
+    exact h₃
+  . -- ←
+    intro (h₁ : x ∈ ({a}:Set))
+    have h₂ : x = a := (mem_singleton x a).mp h₁
+    have h₃ : x ∈ X := (h₀ x).mpr h₂
+    exact h₃
 
 /-- Remark 3.1.9 -/
 theorem SetTheory.Set.pair_uniq (a b:Object) : ∃! (X:Set), ∀ x, x ∈ X ↔ x = a ∨ x = b := by sorry
