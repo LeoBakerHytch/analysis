@@ -329,7 +329,18 @@ theorem SetTheory.Set.pair_comm (a b:Object) : ({a,b}:Set) = {b,a} := by
 /-- Remark 3.1.9 -/
 @[simp]
 theorem SetTheory.Set.pair_self (a:Object) : ({a,a}:Set) = {a} := by
-  sorry
+  apply SetTheory.extensionality
+  intro x
+  constructor
+  . intro (hxaa : x ∈ ({a, a}:Set))
+    have h₁ : x = a ∨ x = a := (mem_pair x a a).mp hxaa
+    have h₂ : x = a         := (or_self (x = a)).mp h₁
+    have h₃ : x ∈ ({a}:Set) := (mem_singleton x a).mpr h₂
+    exact h₃
+  . intro (hxa : x ∈ ({a}:Set))
+    have h₁ : x = a            := (mem_singleton x a).mp hxa
+    have h₂ : x ∈ ({a, a}:Set) := (mem_pair x a a).mpr (Or.inl h₁)
+    exact h₂
 
 /-- Exercise 3.1.1 -/
 theorem SetTheory.Set.pair_eq_pair {a b c d:Object} (h: ({a,b}:Set) = {c,d}) :
