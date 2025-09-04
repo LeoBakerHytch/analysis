@@ -160,8 +160,26 @@ open SetTheory.Set
 theorem SetTheory.Set.not_mem_empty : ∀ x, x ∉ (∅:Set) := emptyset_mem
 
 /-- Empty set has no elements -/
-theorem SetTheory.Set.eq_empty_iff_forall_notMem {X:Set} : X = ∅ ↔ (∀ x, x ∉ X) := by
-  sorry
+theorem SetTheory.Set.eq_empty_iff_forall_notMem {X : Set} :
+  X = ∅ ↔ (∀x, x ∉ X)
+:= by
+  constructor
+  . -- ⊢ X = ∅ → ∀x, x ∉ X
+    intro (hX : X = ∅) x
+    have h₁ : x ∉ ∅ := Set.not_mem_empty x
+    have h₂ : x ∉ X := hX ▸ h₁
+    exact h₂
+  . -- ⊢ (∀x, x ∉ X) → X = ∅
+    intro (hX : ∀x, x ∉ X)
+    apply SetTheory.extensionality
+    intro y
+    constructor
+    . -- ⊢ y ∈ X → y ∈ ∅
+      intro (hy : y ∈ X)
+      exact ((hX y : y ∉ X) hy).elim
+    . -- ⊢ y ∈ ∅ → y ∈ X
+      intro (hy : y ∈ (∅:Set))
+      exact ((Set.not_mem_empty y : y ∉ ∅) hy).elim
 
 /-- Empty set is unique -/
 theorem SetTheory.Set.empty_unique : ∃! (X:Set), ∀ x, x ∉ X := by
