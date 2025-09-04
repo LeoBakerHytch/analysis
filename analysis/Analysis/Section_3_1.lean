@@ -244,7 +244,22 @@ theorem SetTheory.Set.pair_eq (a b:Object) : ({a,b}:Set) = {a} ∪ {b} := by rfl
     to Set. -/
 @[simp]
 theorem SetTheory.Set.mem_pair (x a b:Object) : x ∈ ({a,b}:Set) ↔ (x = a ∨ x = b) := by
-  simp [pair_eq, mem_union, mem_singleton]
+  constructor
+  . intro (hx : x ∈ ({a, b}:Set))
+    have h₁ : x ∈ ({a}:Set) ∪ ({b}:Set)     := by rw [pair_eq] at hx; exact hx
+    have h₂ : x ∈ ({a}:Set) ∨ x ∈ ({b}:Set) := by rw [mem_union] at h₁; exact h₁
+    have h₃ : x = a ∨ x = b                 := by rw [mem_singleton, mem_singleton] at h₂; exact h₂
+    exact h₃
+  . intro hx
+    rcases hx with (hxa₁ : x = a) | (hxb₁ : x = b)
+    . have ha₂ : x ∈ ({a}:Set)             := (mem_singleton x a).mpr hxa₁
+      have ha₃ : x ∈ ({a}:Set) ∪ ({b}:Set) := (mem_union x ({a}:Set) ({b}:Set)).mpr (Or.inl ha₂)
+      have ha₄ : x ∈ ({a, b}:Set)          := pair_eq a b ▸ ha₃
+      exact ha₄
+    . have hb₂ : x ∈ ({b}:Set)             := (mem_singleton x b).mpr hxb₁
+      have hb₃ : x ∈ ({a}:Set) ∪ ({b}:Set) := (mem_union x ({a}:Set) ({b}:Set)).mpr (Or.inr hb₂)
+      have hb₄ : x ∈ ({a, b}:Set)          := pair_eq a b ▸ hb₃
+      exact hb₄
 
 @[simp]
 theorem SetTheory.Set.mem_triple (x a b c:Object) : x ∈ ({a,b,c}:Set) ↔ (x = a ∨ x = b ∨ x = c) := by
