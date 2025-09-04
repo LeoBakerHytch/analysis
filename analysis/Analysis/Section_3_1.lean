@@ -185,21 +185,23 @@ theorem SetTheory.Set.eq_empty_iff_forall_notMem {X : Set} :
 theorem SetTheory.Set.empty_unique : ∃! (X:Set), ∀ x, x ∉ X := by
   use (∅:Set)
   simp
-  -- ∀ (Y:Set), (∀ (x:object), x ∉ Y) → Y = ∅
+  -- ⊢ ∀ (Y:Set), (∀ (x:object), x ∉ Y) → Y = ∅
   intro X (hx : ∀x, x ∉ X)
-  exact eq_empty_iff_forall_notMem.mpr hx
+  -- ⊢ X = ∅
+  exact (eq_empty_iff_forall_notMem.mpr : (∀x, x ∉ X) → X = ∅) hx
 
 /-- Lemma 3.1.5 (Single choice) -/
 lemma SetTheory.Set.nonempty_def {X:Set} (h: X ≠ ∅) : ∃ x, x ∈ X := by
   contrapose! h
   -- h: ∀x, x ∉ X
   -- ⊢ X = ∅
-  exact eq_empty_iff_forall_notMem.mpr h
+  exact (eq_empty_iff_forall_notMem.mpr : (∀x, x ∉ X) → X = ∅) h
 
 theorem SetTheory.Set.nonempty_of_inhabited {X:Set} {x:Object} (h:x ∈ X) : X ≠ ∅ := by
   contrapose! h
-  rw [eq_empty_iff_forall_notMem] at h
-  exact h x
+  -- h: X = ∅
+  -- ⊢ x ∉ ∅
+  exact (eq_empty_iff_forall_notMem.mp : X = ∅ → ∀x, x ∉ X) h x
 
 instance SetTheory.Set.instSingleton : Singleton Object Set where
   singleton := singleton
