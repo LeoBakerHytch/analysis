@@ -298,7 +298,19 @@ theorem SetTheory.Set.singleton_uniq (a:Object) : ∃! (X:Set), ∀ x, x ∈ X �
     exact h₃
 
 /-- Remark 3.1.9 -/
-theorem SetTheory.Set.pair_uniq (a b:Object) : ∃! (X:Set), ∀ x, x ∈ X ↔ x = a ∨ x = b := by sorry
+theorem SetTheory.Set.pair_uniq (a b:Object) : ∃! (X:Set), ∀ x, x ∈ X ↔ x = a ∨ x = b := by
+  use ({a, b}:Set)
+  simp
+  -- ⊢ ∀ X, (∀ x, x ∈ X ↔ x = a ∨ x = b) → X = {a, b}
+  intro X h₀
+  -- ⊢ X = {a, b}
+  apply SetTheory.extensionality
+  -- ⊢ x ∈ X ↔ x ∈ {a, b}
+  intro x
+  have h₁ : x ∈ X ↔ x = a ∨ x = b              := h₀ x
+  have h₂ :         x = a ∨ x = b ↔ x ∈ {a, b} := (Set.mem_pair x a b).symm
+  have h₃ : x ∈ X ↔                 x ∈ {a, b} := h₁.trans h₂
+  exact h₃
 
 /-- Remark 3.1.9 -/
 theorem SetTheory.Set.pair_comm (a b:Object) : ({a,b}:Set) = {b,a} := by sorry
