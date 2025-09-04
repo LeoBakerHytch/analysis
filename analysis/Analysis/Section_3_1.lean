@@ -183,15 +183,18 @@ theorem SetTheory.Set.eq_empty_iff_forall_notMem {X : Set} :
 
 /-- Empty set is unique -/
 theorem SetTheory.Set.empty_unique : ∃! (X:Set), ∀ x, x ∉ X := by
-  sorry
+  use (∅:Set)
+  simp
+  -- ∀ (Y:Set), (∀ (x:object), x ∉ Y) → Y = ∅
+  intro X (hx : ∀x, x ∉ X)
+  exact eq_empty_iff_forall_notMem.mpr hx
 
 /-- Lemma 3.1.5 (Single choice) -/
 lemma SetTheory.Set.nonempty_def {X:Set} (h: X ≠ ∅) : ∃ x, x ∈ X := by
-  -- This proof is written to follow the structure of the original text.
-  by_contra! this
-  have claim (x:Object) : x ∈ X ↔ x ∈ (∅:Set) := by simp [this, not_mem_empty]
-  apply ext at claim
-  contradiction
+  contrapose! h
+  -- h: ∀x, x ∉ X
+  -- ⊢ X = ∅
+  exact eq_empty_iff_forall_notMem.mpr h
 
 theorem SetTheory.Set.nonempty_of_inhabited {X:Set} {x:Object} (h:x ∈ X) : X ≠ ∅ := by
   contrapose! h
