@@ -615,6 +615,20 @@ theorem SetTheory.Set.ssubset_trans (A B C : Set) (hAB : A ⊂ B) (hBC : B ⊂ C
   have hAC₂ : A ⊂ C := ssubset_of_subset_of_not_mem hAC₁ ⟨x, hxC, hxA⟩
   exact hAC₂
 
+theorem SetTheory.Set.ssubset_of_subset_of_ssubset {A B C : Set} (hAB : A ⊆ B) (hBC : B ⊂ C) : A ⊂ C := by
+  have ⟨x, (hxC : x ∈ C), (hxB : x ∉ B)⟩ := exists_not_mem_of_ssubset hBC
+  have hxA  : x ∉ A := fun (hxA : x ∈ A) => (hxB : x ∉ B) (hAB x hxA : x ∈ B)
+  have hAC₁ : A ⊆ C := subset_trans hAB hBC.left
+  have hAC₂ : A ⊂ C := ssubset_of_subset_of_not_mem hAC₁ ⟨x, hxC, hxA⟩
+  exact hAC₂
+
+theorem SetTheory.Set.ssubset_of_ssubset_of_subset {A B C : Set} (hAB : A ⊂ B) (hBC : B ⊆ C) : A ⊂ C := by
+  have ⟨x, (hxB : x ∈ B), (hxA : x ∉ A)⟩ := exists_not_mem_of_ssubset hAB
+  have hxC  : x ∈ C := hBC x hxB
+  have hAC₁ : A ⊆ C := subset_trans hAB.left hBC
+  have hAC₂ : A ⊂ C := ssubset_of_subset_of_not_mem hAC₁ ⟨x, hxC, hxA⟩
+  exact hAC₂
+
 /--
   This defines the subtype `A.toSubtype` for any `A:Set`.
   Note that `A.toSubtype` gives you a type, similar to how `Object` or `Set` are types.
