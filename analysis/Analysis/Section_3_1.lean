@@ -579,7 +579,12 @@ theorem SetTheory.Set.subset_trans {A B C:Set} (hAB:A ⊆ B) (hBC:B ⊆ C) : A �
 
 /-- Proposition 3.1.17 (Partial ordering by set inclusion) -/
 theorem SetTheory.Set.subset_antisymm (A B:Set) (hAB:A ⊆ B) (hBA:B ⊆ A) : A = B := by
-  sorry
+  apply SetTheory.extensionality
+  intro x
+  have h₁ : x ∈ A → x ∈ B := hAB x
+  have h₂ : x ∈ B → x ∈ A := hBA x
+  have h₃ : x ∈ A ↔ x ∈ B := iff_def.mpr ⟨h₁, h₂⟩
+  exact h₃
 
 /-- Proposition 3.1.17 (Partial ordering by set inclusion) -/
 theorem SetTheory.Set.ssubset_trans (A B C:Set) (hAB:A ⊂ B) (hBC:B ⊂ C) : A ⊂ C := by
