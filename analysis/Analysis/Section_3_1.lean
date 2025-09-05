@@ -342,6 +342,12 @@ theorem SetTheory.Set.pair_self (a:Object) : ({a,a}:Set) = {a} := by
     have h₂ : x ∈ ({a, a}:Set) := (mem_pair x a a).mpr (Or.inl h₁)
     exact h₂
 
+lemma SetTheory.extensionality_of_eq {X Y : Set}
+  (h : X = Y) : (∀ (x : Object), x ∈ X ↔ x ∈ Y)
+:= by
+  intro x
+  rw [h]
+
 /-- Exercise 3.1.1 -/
 theorem SetTheory.Set.pair_eq_pair {a b c d:Object} (h: ({a,b}:Set) = {c,d}) :
     a = c ∧ b = d ∨ a = d ∧ b = c := by
