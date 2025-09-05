@@ -393,13 +393,13 @@ theorem SetTheory.Set.pair_eq_pair {a b c d:Object} (h: ({a,b}:Set) = {c,d}) :
     have hx : ∀x, x ∈ ({a, b}:Set) ↔ x ∈ ({c, d}:Set) := SetTheory.extensionality_of_eq h
     have ha : a = c ∨ a = d := (mem_pair a c d).mp ((hx a).mp haab)
     have hb : b = c ∨ b = d := (mem_pair b c d).mp ((hx b).mp hbab)
-    have habc_elim₁ : (a = c ∧ b = c) → False := fun ⟨hac, hbc⟩ => hab_ne (hbc ▸ hac)
-    have habd_elim₁ : (a = d ∧ b = d) → False := fun ⟨had, hbd⟩ => hab_ne (hbd ▸ had)
-    have habc_elim₂ : (a = c ∧ (b = c ∨ b = d)) → (a = c ∧ b = d) := fun h => (false_or _).mp ((and_or_left.mp h).imp_left habc_elim₁)
-    have habd_elim₂ : (a = d ∧ (b = c ∨ b = d)) → (a = d ∧ b = c) := fun h => (or_false _).mp ((and_or_left.mp h).imp_right habd_elim₁)
-    have h₁ : (a = c ∧ (b = c ∨ b = d)) ∨ (a = d ∧ (b = c ∨ b = d)) := or_and_right.mp ⟨ha, hb⟩
-    have h₂ := h₁.imp habc_elim₂ habd_elim₂
-    exact h₂
+    rcases ha with hac | had
+    . rcases hb with hbc | hbd
+      . exact (hab_ne (hbc.symm ▸ hac)).elim
+      . exact Or.inl ⟨hac, hbd⟩
+    . rcases hb with hbc | hbd
+      . exact Or.inr ⟨had, hbc⟩
+      . exact (hab_ne (hbd.symm ▸ had)).elim
 
 abbrev SetTheory.Set.empty : Set := ∅
 abbrev SetTheory.Set.singleton_empty : Set := {(empty: Object)}
