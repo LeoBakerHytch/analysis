@@ -159,6 +159,13 @@ open SetTheory.Set
 @[simp]
 theorem SetTheory.Set.not_mem_empty : ∀ x, x ∉ (∅:Set) := emptyset_mem
 
+lemma SetTheory.Set.mem_empty_iff (x : Object) : x ∈ (∅:Set) ↔ False := by
+  constructor
+  . intro (h : x ∈ ∅)
+    exact (not_mem_empty x) h
+  . intro (h : False)
+    exact h.elim
+
 /-- Empty set has no elements -/
 theorem SetTheory.Set.eq_empty_iff_forall_notMem {X : Set} :
   X = ∅ ↔ (∀x, x ∉ X)
@@ -491,7 +498,19 @@ theorem SetTheory.Set.union_self (A:Set) : A ∪ A = A := by
 /-- Proposition 3.1.27(a) -/
 @[simp]
 theorem SetTheory.Set.union_empty (A:Set) : A ∪ ∅ = A := by
-  sorry
+  apply SetTheory.extensionality
+  intro x
+  constructor
+  . intro (h₀ : x ∈ A ∪ ∅)
+    have h₁ : x ∈ A ∨ x ∈ (∅:Set) := (mem_union x A ∅).mp h₀
+    have h₂ : x ∈ A ∨ False       := h₁.imp_right (mem_empty_iff x).mp
+    have h₃ : x ∈ A               := (or_false (x ∈ A)).mp h₂
+    exact h₃
+  . intro (h₀ : x ∈ A)
+    have h₁ : x ∈ A ∨ False       := (or_false (x ∈ A)).mpr h₀
+    have h₂ : x ∈ A ∨ x ∈ (∅:Set) := h₁.imp_right (mem_empty_iff x).mpr
+    have h₃ : x ∈ A ∪ ∅           := (mem_union x A ∅).mpr h₂
+    exact h₃
 
 /-- Proposition 3.1.27(a) -/
 @[simp]
