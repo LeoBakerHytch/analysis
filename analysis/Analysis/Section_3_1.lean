@@ -400,14 +400,28 @@ abbrev SetTheory.Set.pair_empty : Set := {(empty: Object), (singleton_empty: Obj
 
 /-- Exercise 3.1.2 -/
 theorem SetTheory.Set.emptyset_neq_singleton : empty ≠ singleton_empty := by
-  sorry
+  by_contra! h₀
+  have h₁ : (empty:Object) ∈ singleton_empty := by simp [mem_singleton]
+  have h₂ : (empty:Object) ∈ empty := (SetTheory.extensionality_of_eq h₀ empty).mpr h₁
+  have h₃ : (empty:Object) ∉ empty := not_mem_empty empty
+  exact h₃ h₂
 
 /-- Exercise 3.1.2 -/
-theorem SetTheory.Set.emptyset_neq_pair : empty ≠ pair_empty := by sorry
+theorem SetTheory.Set.emptyset_neq_pair : empty ≠ pair_empty := by
+  by_contra! h₀
+  have h₁ : (empty:Object) ∈ pair_empty := by simp [mem_singleton]
+  have h₂ : (empty:Object) ∈ empty := (SetTheory.extensionality_of_eq h₀ empty).mpr h₁
+  have h₃ : (empty:Object) ∉ empty := not_mem_empty empty
+  exact h₃ h₂
 
 /-- Exercise 3.1.2 -/
 theorem SetTheory.Set.singleton_empty_neq_pair : singleton_empty ≠ pair_empty := by
-  sorry
+  by_contra! h₀
+  have h₁ : (singleton_empty:Object) ∈ pair_empty := by simp
+  have h₂ : (singleton_empty:Object) ∈ singleton_empty := (SetTheory.extensionality_of_eq h₀ singleton_empty).mpr h₁
+  have h₃ : (singleton_empty:Object) = empty := (mem_singleton singleton_empty empty).mp h₂
+  have h₄ : (singleton_empty:Set) = empty := by simpa using h₃
+  exact emptyset_neq_singleton.symm h₄
 
 /--
   Remark 3.1.11.
