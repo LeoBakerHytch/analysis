@@ -515,7 +515,8 @@ theorem SetTheory.Set.union_empty (A:Set) : A ∪ ∅ = A := by
 /-- Proposition 3.1.27(a) -/
 @[simp]
 theorem SetTheory.Set.empty_union (A:Set) : ∅ ∪ A = A := by
-  sorry
+  rw [union_comm]
+  exact Set.union_empty _
 
 theorem SetTheory.Set.triple_eq (a b c:Object) : {a,b,c} = ({a}:Set) ∪ {b,c} := by
   rfl
