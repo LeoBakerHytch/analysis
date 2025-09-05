@@ -101,7 +101,6 @@ theorem LIM_def {a:ℕ → ℚ} (ha: (a:Sequence).IsCauchy) :
 
 /-- Definition 5.3.1 (Real numbers) -/
 theorem Real.eq_lim (x:Real) : ∃ (a:ℕ → ℚ), (a:Sequence).IsCauchy ∧ x = LIM a := by
-  -- I had a lot of trouble with this proof; perhaps there is a more idiomatic way to proceed
   apply Quotient.ind _ x; intro a; use (a:ℕ → ℚ)
   observe : ((a:ℕ → ℚ):Sequence) = a.toSequence
   rw [this, LIM_def (by convert a.cauchy)]
