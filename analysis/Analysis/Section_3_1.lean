@@ -364,8 +364,35 @@ lemma SetTheory.distinct_of_pair_eq_distinct_pair {a b c d : Object}
 
 /-- Exercise 3.1.1 -/
 theorem SetTheory.Set.pair_eq_pair {a b c d:Object} (h: ({a,b}:Set) = {c,d}) :
-    a = c ∧ b = d ∨ a = d ∧ b = c := by
-  sorry
+  (a = c ∧ b = d) ∨ (a = d ∧ b = c)
+:= by
+  have haab : a ∈ ({a, b}:Set) := ((mem_pair a a b).mpr (Or.inl rfl))
+  have hbab : b ∈ ({a, b}:Set) := ((mem_pair b a b).mpr (Or.inr rfl))
+
+  by_cases hcd : c = d
+
+  . -- Case: {c, d} is in fact the singleton {c}; simplify hypothesis & goal
+    replace h : ({a, b}:Set) = {c} := by simpa only [hcd, pair_self] using h
+    simp [← hcd, or_self]
+    -- ⊢ a = c ∧ b = c
+    have hx : ∀x, x ∈ ({a, b}:Set) ↔ x ∈ ({c}:Set) := SetTheory.extensionality_of_eq h
+    have ha : a = c := (mem_singleton a c).mp ((hx a).mp haab)
+    have hb : b = c := (mem_singleton b c).mp ((hx b).mp hbab)
+    exact ⟨ha, hb⟩
+
+  . -- Case: true pair of distinct elements
+    have hcd_ne : c ≠ d := by push_neg at hcd; exact hcd
+    have hab_ne : a ≠ b := SetTheory.distinct_of_pair_eq_distinct_pair h hcd_ne
+    have hx : ∀x, x ∈ ({a, b}:Set) ↔ x ∈ ({c, d}:Set) := SetTheory.extensionality_of_eq h
+    have ha : a = c ∨ a = d := (mem_pair a c d).mp ((hx a).mp haab)
+    have hb : b = c ∨ b = d := (mem_pair b c d).mp ((hx b).mp hbab)
+    rcases ha with hac | had
+    . rcases hb with hbc | hbd
+      . exact (hab_ne (hbc.symm ▸ hac)).elim
+      . exact Or.inl ⟨hac, hbd⟩
+    . rcases hb with hbc | hbd
+      . exact Or.inr ⟨had, hbc⟩
+      . exact (hab_ne (hbd.symm ▸ had)).elim
 
 abbrev SetTheory.Set.empty : Set := ∅
 abbrev SetTheory.Set.singleton_empty : Set := {(empty: Object)}
