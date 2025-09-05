@@ -476,7 +476,17 @@ theorem SetTheory.Set.union_assoc (A B C:Set) : (A ∪ B) ∪ C = A ∪ (B ∪ C
 /-- Proposition 3.1.27(c) -/
 @[simp]
 theorem SetTheory.Set.union_self (A:Set) : A ∪ A = A := by
-  sorry
+  apply SetTheory.extensionality
+  intro x
+  constructor
+  . intro (h₀ : x ∈ A ∪ A)
+    have h₁ : x ∈ A ∨ x ∈ A := (mem_union x A A).mp h₀
+    have h₂ : x ∈ A         := (or_self (x ∈ A)).mp h₁
+    exact h₂
+  . intro (h₀ : x ∈ A)
+    have h₁ : x ∈ A ∨ x ∈ A := (or_self (x ∈ A)).mpr h₀
+    have h₂ : x ∈ A ∪ A     := (mem_union x A A).mpr h₁
+    exact h₂
 
 /-- Proposition 3.1.27(a) -/
 @[simp]
