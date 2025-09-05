@@ -348,6 +348,20 @@ lemma SetTheory.extensionality_of_eq {X Y : Set}
   intro x
   rw [h]
 
+lemma SetTheory.distinct_of_pair_eq_distinct_pair {a b c d : Object}
+  (h : ({a, b}:Set) = {c, d})
+  (hcd_ne : c ≠ d) : a ≠ b
+:= by
+  by_contra! hab -- a = b
+  have h₁  : ({a, b}:Set) = {a} := by simp only [hab, pair_self]
+  have h₂  : ∀x, x ∈ ({a, b}:Set) ↔ x ∈ ({c, d}:Set) := SetTheory.extensionality_of_eq h
+  have hc₁ : c ∈ ({a}:Set) := h₁ ▸ (h₂ c).mpr ((mem_pair c c d).mpr (Or.inl rfl))
+  have hd₁ : d ∈ ({a}:Set) := h₁ ▸ (h₂ d).mpr ((mem_pair d c d).mpr (Or.inr rfl))
+  have hc₂ : c = a := (mem_singleton c a).mp hc₁
+  have hd₂ : d = a := (mem_singleton d a).mp hd₁
+  have hcd : c = d := hd₂.symm ▸ hc₂
+  exact hcd_ne hcd
+
 /-- Exercise 3.1.1 -/
 theorem SetTheory.Set.pair_eq_pair {a b c d:Object} (h: ({a,b}:Set) = {c,d}) :
     a = c ∧ b = d ∨ a = d ∧ b = c := by
