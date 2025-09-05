@@ -455,19 +455,23 @@ theorem SetTheory.Set.union_comm (A B:Set) : A ∪ B = B ∪ A := by
 
 /-- Lemma 3.1.12 (Basic properties of unions) / Exercise 3.1.3 -/
 theorem SetTheory.Set.union_assoc (A B C:Set) : (A ∪ B) ∪ C = A ∪ (B ∪ C) := by
-  -- this proof is written to follow the structure of the original text.
-  ext x
+  apply SetTheory.extensionality
+  intro x
   constructor
-  . intro hx; rw [mem_union] at hx
-    obtain case1 | case2 := hx
-    . rw [mem_union] at case1
-      obtain case1a | case1b := case1
-      . rw [mem_union]; tauto
-      have : x ∈ B ∪ C := by rw [mem_union]; tauto
-      rw [mem_union]; tauto
-    have : x ∈ B ∪ C := by rw [mem_union]; tauto
-    rw [mem_union]; tauto
-  sorry
+  . intro (h₀ : x ∈ A ∪ B ∪ C)
+    have h₁ : (x ∈ A ∪ B) ∨ x ∈ C     := (mem_union x (A ∪ B) C).mp h₀
+    have h₂ : (x ∈ A ∨ x ∈ B) ∨ x ∈ C := h₁.imp_left (mem_union x A B).mp
+    have h₃ : x ∈ A ∨ (x ∈ B ∨ x ∈ C) := or_assoc.mp h₂
+    have h₄ : x ∈ A ∨ (x ∈ B ∪ C)     := h₃.imp_right (mem_union x B C).mpr
+    have h₅ : x ∈ A ∪ (B ∪ C)         := (mem_union x A (B ∪ C)).mpr h₄
+    exact h₅
+  . intro (h₀ : x ∈ A ∪ (B ∪ C))
+    have h₁ : x ∈ A ∨ (x ∈ B ∪ C)     := (mem_union x A (B ∪ C)).mp h₀
+    have h₂ : x ∈ A ∨ (x ∈ B ∨ x ∈ C) := h₁.imp_right (mem_union x B C).mp
+    have h₃ : (x ∈ A ∨ x ∈ B) ∨ x ∈ C := or_assoc.mpr h₂
+    have h₄ : (x ∈ A ∪ B) ∨ x ∈ C     := h₃.imp_left (mem_union x A B).mpr
+    have h₅ : x ∈ (A ∪ B ∪ C)         := (mem_union x (A ∪ B) C).mpr h₄
+    exact h₅
 
 /-- Proposition 3.1.27(c) -/
 @[simp]
