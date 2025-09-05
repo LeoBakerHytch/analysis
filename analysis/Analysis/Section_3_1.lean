@@ -586,10 +586,47 @@ theorem SetTheory.Set.subset_antisymm (A B:Set) (hAB:A ⊆ B) (hBA:B ⊆ A) : A 
   have h₃ : x ∈ A ↔ x ∈ B := iff_def.mpr ⟨h₁, h₂⟩
   exact h₃
 
-/-- Proposition 3.1.17 (Partial ordering by set inclusion) -/
-theorem SetTheory.Set.ssubset_trans (A B C:Set) (hAB:A ⊂ B) (hBC:B ⊂ C) : A ⊂ C := by
-  sorry
+lemma SetTheory.Set.exists_not_mem_of_ssubset {A B : Set}
+  (hAB : A ⊂ B) : ∃ (x : Object), x ∈ B ∧ x ∉ A
+:= by
+  have ⟨hAB_subset, hAB_ne⟩ : A ⊆ B ∧ A ≠ B := (ssubset_def A B).mp hAB
+  have hxAB : ∀x ∈ A, x ∈ B := fun x => (subset_def A B).mp hAB_subset x
+  by_cases hB : B = ∅
+  . by_cases hA : A = ∅
 
+    . -- Case: A = ∅ ∧ B = ∅
+      have hAB_eq : A = B := hB.symm ▸ hA
+      exact (hAB_ne hAB_eq).elim
+
+    . -- Case: A ≠ ∅ ∧ B = ∅
+      have ⟨x, (hxA : x ∈ A)⟩ := nonempty_def hA
+      have hxB₁ : x ∉ B := eq_empty_iff_forall_notMem.mp hB x
+      have hxB₂ : x ∈ B := hAB_subset x hxA
+      exact (hxB₁ hxB₂).elim
+
+  . -- Case: B ≠ ∅
+    by_contra! hxBA -- ∀ x ∈ B, x ∈ A
+    have hxAB_iff : ∀x, x ∈ A ↔ x ∈ B := fun x => iff_def.mpr ⟨hxAB x, hxBA x⟩
+    have hAB_eq : A = B := (SetTheory.extensionality A B) hxAB_iff
+    exact hAB_ne hAB_eq
+
+lemma SetTheory.Set.ssubset_of_subset_of_not_mem {A B : Set}
+  (hAB : A ⊆ B)
+  (hx : ∃ (x : Object), x ∈ B ∧ x ∉ A) : A ⊂ B
+:= by
+  have hAB_ne : A ≠ B := by
+    intro (hAB : A = B)
+    have ⟨x, (hxB₁ : x ∈ B), (hxB₂ : x ∉ B)⟩ := hAB ▸ hx
+    exact (hxB₂ hxB₁).elim
+  exact ⟨hAB, hAB_ne⟩
+
+/-- Proposition 3.1.17 (Partial ordering by set inclusion) -/
+theorem SetTheory.Set.ssubset_trans (A B C : Set) (hAB : A ⊂ B) (hBC : B ⊂ C) : A ⊂ C := by
+  have ⟨x, (hxC : x ∈ C), (hxB : x ∉ B)⟩ := exists_not_mem_of_ssubset hBC
+  have hxA  : x ∉ A := fun (hxA : x ∈ A) => (hxB : x ∉ B) (hAB.left x hxA : x ∈ B)
+  have hAC₁ : A ⊆ C := subset_trans hAB.left hBC.left
+  have hAC₂ : A ⊂ C := ssubset_of_subset_of_not_mem hAC₁ ⟨x, hxC, hxA⟩
+  exact hAC₂
 
 /--
   This defines the subtype `A.toSubtype` for any `A:Set`.
