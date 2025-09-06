@@ -586,48 +586,88 @@ theorem SetTheory.Set.subset_antisymm (A B:Set) (hAB:A ⊆ B) (hBA:B ⊆ A) : A 
   have h₃ : x ∈ A ↔ x ∈ B := iff_def.mpr ⟨h₁, h₂⟩
   exact h₃
 
-lemma SetTheory.Set.exists_not_mem_of_ssubset {A B : Set}
+
+-- Existence of distinguishing element
+lemma SetTheory.Set.exists_dist_elem_of_ssubset {A B : Set}
   (hAB : A ⊂ B) : ∃ (x : Object), x ∈ B ∧ x ∉ A
 := by
-  by_contra! h
-  have ⟨(hAB_subset : A ⊆ B), (hAB_ne : A ≠ B)⟩ := (ssubset_def A B).mp hAB
-  have hxBA : ∀x ∈ B, x ∈ A := h
-  have hxAB : ∀x ∈ A, x ∈ B := fun x => (subset_def A B).mp hAB_subset x
-  have hxAB_iff : ∀x, x ∈ A ↔ x ∈ B := fun x => iff_def.mpr ⟨hxAB x, hxBA x⟩
-  have hAB_eq : A = B := (SetTheory.extensionality A B) hxAB_iff
-  exact (hAB_ne hAB_eq).elim
+  by_contra! hBA_sub -- B ⊆ A
+  have ⟨(hAB_sub : A ⊆ B), (hAB_neq : A ≠ B)⟩ := (ssubset_def A B).mp hAB
+  have hAB_eq : A = B := subset_antisymm A B hAB_sub hBA_sub
+  exact (hAB_neq hAB_eq).elim
 
-lemma SetTheory.Set.ssubset_of_subset_of_not_mem {A B : Set}
-  (hAB : A ⊆ B)
+-- Strict subset by existence of distinguishing element
+lemma SetTheory.Set.ssubset_of_subset_of_dist_elem {A B : Set}
+  (hAB_sub : A ⊆ B)
   (hx : ∃ (x : Object), x ∈ B ∧ x ∉ A) : A ⊂ B
 := by
-  have hAB_ne : A ≠ B := by
+  have hAB_neq : A ≠ B := by
     intro (hAB : A = B)
-    have ⟨x, (hxB₁ : x ∈ B), (hxB₂ : x ∉ B)⟩ := hAB ▸ hx
-    exact (hxB₂ hxB₁).elim
-  exact ⟨hAB, hAB_ne⟩
+    have ⟨x, (hxB_mem : x ∈ B), (hxB_not : x ∉ B)⟩ := hAB ▸ hx
+    exact (hxB_not hxB_mem).elim
+  exact ⟨hAB_sub, hAB_neq⟩
+
 
 /-- Proposition 3.1.17 (Partial ordering by set inclusion) -/
 theorem SetTheory.Set.ssubset_trans (A B C : Set) (hAB : A ⊂ B) (hBC : B ⊂ C) : A ⊂ C := by
-  have ⟨x, (hxC : x ∈ C), (hxB : x ∉ B)⟩ := exists_not_mem_of_ssubset hBC
+  have ⟨x, (hxC : x ∈ C), (hxB : x ∉ B)⟩ := exists_dist_elem_of_ssubset hBC
   have hxA  : x ∉ A := fun (hxA : x ∈ A) => (hxB : x ∉ B) (hAB.left x hxA : x ∈ B)
   have hAC₁ : A ⊆ C := subset_trans hAB.left hBC.left
-  have hAC₂ : A ⊂ C := ssubset_of_subset_of_not_mem hAC₁ ⟨x, hxC, hxA⟩
+  have hAC₂ : A ⊂ C := ssubset_of_subset_of_dist_elem hAC₁ ⟨x, hxC, hxA⟩
   exact hAC₂
+
+-- Proof via antisymmetry of ⊆, for comparison
+theorem SetTheory.Set.ssubset_trans' (A B C : Set) (hAB : A ⊂ B) (hBC : B ⊂ C) : A ⊂ C := by
+  have hAC_sub : A ⊆ C := subset_trans hAB.left hBC.left
+  have hAC_neq : A ≠ C := by
+    intro (hAC : A = C)
+    have hBA_sub : B ⊆ A := (hAC ▸ hBC).left
+    have hAB_sub : A ⊆ B := hAB.left
+    have hAB_eq  : A = B := subset_antisymm A B hAB_sub hBA_sub
+    have hAB_neq : A ≠ B := hAB.right
+    exact (hAB_neq hAB_eq).elim
+  exact ⟨hAC_sub, hAC_neq⟩
+
 
 theorem SetTheory.Set.ssubset_of_subset_of_ssubset {A B C : Set} (hAB : A ⊆ B) (hBC : B ⊂ C) : A ⊂ C := by
-  have ⟨x, (hxC : x ∈ C), (hxB : x ∉ B)⟩ := exists_not_mem_of_ssubset hBC
+  have ⟨x, (hxC : x ∈ C), (hxB : x ∉ B)⟩ := exists_dist_elem_of_ssubset hBC
   have hxA  : x ∉ A := fun (hxA : x ∈ A) => (hxB : x ∉ B) (hAB x hxA : x ∈ B)
   have hAC₁ : A ⊆ C := subset_trans hAB hBC.left
-  have hAC₂ : A ⊂ C := ssubset_of_subset_of_not_mem hAC₁ ⟨x, hxC, hxA⟩
+  have hAC₂ : A ⊂ C := ssubset_of_subset_of_dist_elem hAC₁ ⟨x, hxC, hxA⟩
   exact hAC₂
 
+-- Proof via antisymmetry of ⊆, for comparison
+theorem SetTheory.Set.ssubset_of_subset_of_ssubset' {A B C : Set} (hAB : A ⊆ B) (hBC : B ⊂ C) : A ⊂ C := by
+  have hAC_sub : A ⊆ C := subset_trans hAB hBC.left
+  have hAC_neq : A ≠ C := by
+    intro (hAC : A = C)
+    have hBA_sub : B ⊆ A := hAC ▸ hBC.left
+    have hAB_eq  : A = B := subset_antisymm A B hAB hBA_sub
+    have hBC_eq  : B = C := (hAC ▸ hAB_eq).symm
+    have hBC_neq : B ≠ C := hBC.right
+    exact hBC_neq hBC_eq
+  exact ⟨hAC_sub, hAC_neq⟩
+
+
 theorem SetTheory.Set.ssubset_of_ssubset_of_subset {A B C : Set} (hAB : A ⊂ B) (hBC : B ⊆ C) : A ⊂ C := by
-  have ⟨x, (hxB : x ∈ B), (hxA : x ∉ A)⟩ := exists_not_mem_of_ssubset hAB
+  have ⟨x, (hxB : x ∈ B), (hxA : x ∉ A)⟩ := exists_dist_elem_of_ssubset hAB
   have hxC  : x ∈ C := hBC x hxB
   have hAC₁ : A ⊆ C := subset_trans hAB.left hBC
-  have hAC₂ : A ⊂ C := ssubset_of_subset_of_not_mem hAC₁ ⟨x, hxC, hxA⟩
+  have hAC₂ : A ⊂ C := ssubset_of_subset_of_dist_elem hAC₁ ⟨x, hxC, hxA⟩
   exact hAC₂
+
+-- Proof via antisymmetry of ⊆, for comparison
+theorem SetTheory.Set.ssubset_of_ssubset_of_subset' {A B C : Set} (hAB : A ⊂ B) (hBC : B ⊆ C) : A ⊂ C := by
+  have hAC_sub : A ⊆ C := subset_trans hAB.left hBC
+  have hAC_neq : A ≠ C := by
+    intro (hAC : A = C)
+    have hAB_sub : A ⊆ B := hAB.left
+    have hBA_sub : B ⊆ A := hAC ▸ hBC
+    have hAB_eq  : A = B := subset_antisymm A B hAB_sub hBA_sub
+    have hAB_neq : A ≠ B := hAB.right
+    exact (hAB_neq hAB_eq).elim
+  exact ⟨hAC_sub, hAC_neq⟩
+
 
 /--
   This defines the subtype `A.toSubtype` for any `A:Set`.
