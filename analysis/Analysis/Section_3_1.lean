@@ -721,31 +721,61 @@ lemma SetTheory.Set.subtype_mk_coe {A:Set} {x:Object} (hx:x ∈ A) : A.subtype_m
 abbrev SetTheory.Set.specify (A:Set) (P: A → Prop) : Set := SetTheory.specify A P
 
 /-- Axiom 3.6 (axiom of specification) -/
-theorem SetTheory.Set.specification_axiom {A:Set} {P: A → Prop} {x:Object} (h: x ∈ A.specify P) :
-    x ∈ A :=
-  (SetTheory.specification_axiom A P).1 x h
+theorem SetTheory.Set.specification_axiom {A : Set} {P : A → Prop} {x : Object}
+  (h: x ∈ A.specify P) : x ∈ A
+:= by
+  -- These are equivalent by definition of ⊆, just different ways of saying the same thing:
+  have hxA₁ : A.specify P ⊆ A             := (SetTheory.specification_axiom A P).left
+  have hxA₂ : ∀x, x ∈ A.specify P → x ∈ A := (SetTheory.specification_axiom A P).left
+  exact hxA₂ x h
 
 /-- Axiom 3.6 (axiom of specification) -/
-theorem SetTheory.Set.specification_axiom' {A:Set} (P: A → Prop) (x:A) :
-    x.val ∈ A.specify P ↔ P x :=
-  (SetTheory.specification_axiom A P).2 x
+theorem SetTheory.Set.specification_axiom' {A : Set}
+  (P : A → Prop) (x : A) : x.val ∈ A.specify P ↔ P x
+:= by
+  have hxP : ∀ (x : A), x.val ∈ A.specify P ↔ P x := (SetTheory.specification_axiom A P).right
+  exact hxP x
 
 /-- Axiom 3.6 (axiom of specification) -/
 @[simp]
-theorem SetTheory.Set.specification_axiom'' {A:Set} (P: A → Prop) (x:Object) :
-    x ∈ A.specify P ↔ ∃ h:x ∈ A, P ⟨ x, h ⟩ := by
+theorem SetTheory.Set.specification_axiom'' {A : Set}
+  (P : A → Prop) (x : Object) : x ∈ A.specify P ↔ ∃ (h : x ∈ A), P ⟨x, h⟩
+:= by
   constructor
-  . intro h; use specification_axiom h
-    simp [←specification_axiom' P, h]
-  intro ⟨ h, hP ⟩
-  simpa [←specification_axiom' P] using hP
+  . intro (h : x ∈ A.specify P)
+    use specification_axiom h
+    simp [← specification_axiom' P, h]
+  . intro ⟨ h, hP ⟩
+    simpa [← specification_axiom' P] using hP
 
-theorem SetTheory.Set.specify_subset {A:Set} (P: A → Prop) : A.specify P ⊆ A := by sorry
+theorem SetTheory.Set.specify_subset {A : Set} (P : A → Prop) : A.specify P ⊆ A := by
+  exact (SetTheory.specification_axiom A P).left
 
-/-- This exercise may require some understanding of how  subtypes are implemented in Lean. -/
-theorem SetTheory.Set.specify_congr {A A':Set} (hAA':A = A') {P: A → Prop} {P': A' → Prop}
-  (hPP': (x:Object) → (h:x ∈ A) → (h':x ∈ A') → P ⟨ x, h⟩ ↔ P' ⟨ x, h'⟩ ) :
-    A.specify P = A'.specify P' := by sorry
+theorem SetTheory.Set.specify_congr
+  {A A' : Set}
+  (hAA' : A = A')
+  {P  : A  → Prop}
+  {P' : A' → Prop}
+  (hPP' : (x : Object) → (h : x ∈ A) → (h' : x ∈ A') → P ⟨x, h⟩ ↔ P' ⟨x, h'⟩) :
+  A.specify P = A'.specify P'
+:= by
+  apply SetTheory.extensionality
+  intro x
+  constructor
+  . intro (hxAP  : x ∈ A.specify P)  -- ⊢ x ∈ A'.specify P'
+    have hxA     : x ∈ A             := specification_axiom hxAP
+    have hxA'    : x ∈ A'            := hAA' ▸ hxA
+    have hxP     : P  ⟨x, hxA⟩       := (specification_axiom' P ⟨x, hxA⟩).mp hxAP
+    have hxP'    : P' ⟨x, hxA'⟩      := (hPP' x hxA hxA').mp hxP
+    have hxAP'   : x ∈ A'.specify P' := (specification_axiom'' P' x).mpr ⟨hxA', hxP'⟩
+    exact hxAP'
+  . intro (hxAP' : x ∈ A'.specify P') -- ⊢ x ∈ A.specify P
+    have hxA'    : x ∈ A'             := specification_axiom hxAP'
+    have hxA     : x ∈ A              := hAA' ▸ hxA'
+    have hxP'    : P' ⟨x, hxA'⟩       := (specification_axiom' P' ⟨x, hxA'⟩).mp hxAP'
+    have hxP     : P  ⟨x, hxA⟩        := (hPP' x hxA hxA').mpr hxP'
+    have hxAP    : x ∈ A.specify P    := (specification_axiom'' P x).mpr ⟨hxA, hxP⟩
+    exact hxAP
 
 instance SetTheory.Set.instIntersection : Inter Set where
   inter X Y := X.specify (fun x ↦ x.val ∈ Y)
