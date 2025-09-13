@@ -57,7 +57,7 @@ theorem SetTheory.Set.axiom_of_regularity {A:Set} (h: A ≠ ∅) :
   choose x h h' using regularity_axiom A (nonempty_def h)
   use ⟨x, h⟩
   intro S hS; specialize h' S hS
-  rw [disjoint_iff, eq_empty_iff_forall_notMem]
+  rw [disjoint_iff, eq_empty_iff_forall_not_mem]
   contrapose! h'; simp at h'
   aesop
 

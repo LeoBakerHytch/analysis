@@ -330,7 +330,7 @@ theorem SetTheory.Set.finite_choice {n:ℕ} {X: Fin n → Set} (h: ∀ i, X i �
   -- (although it is more convenient to induct from 0 rather than 1)
   induction' n with n hn
   . have : Fin 0 = ∅ := by
-      rw [eq_empty_iff_forall_notMem]
+      rw [eq_empty_iff_forall_not_mem]
       grind [specification_axiom'']
     have empty (i:Fin 0) : X i := False.elim (by rw [this] at i; exact not_mem_empty i i.property)
     apply nonempty_of_inhabited (x := tuple empty); rw [mem_iProd]; use empty
